@@ -189,12 +189,32 @@ college_recent_grads %>%
             q1 = quantile(median, probs = 0.25),
             q3 = quantile(median, probs = 0.75))
 ```
-
+```{r}
+    ggplot(data = college_recent_grads, mapping = aes(x = median)) +
+  geom_histogram(binwidth = 5000) +
+  labs(title = "Distribution of Median Income (Binwidth = $5000)")
+```
+    
+    ***5000 Binwidth is what I prefer considering it makes the data easier to interpret.***
+    
 4.  Based on the shape of the histogram you created in the previous exercise, determine which of these summary statistics is useful for describing the distribution.
     Write up your description (remember shape, center, spread, any unusual observations) and include the summary statistic output as well.
+    
+***The distribution is skewed meaning that most majors have lower median incomes whilst a few have higher incomes.***
+    
+   
 
 5.  Plot the distribution of `median` income using a histogram, faceted by `major_category`.
     Use the `binwidth` you chose in the earlier exercise.
+```{r}
+ggplot(data = college_recent_grads, mapping = aes(x = median)) +
+  geom_histogram(binwidth = 5000, fill = "blue", color = "black") +
+  facet_wrap(~major_category) +
+  labs(title = "Distribution of Median Income by Major Category",
+       x = "Median Income ($)",
+       y = "Count")
+```
+    
 
 Now that we've seen the shapes of the distributions of median incomes for each major category, we should have a better idea for which summary statistic to use to quantify the typical median income.
 
@@ -203,15 +223,16 @@ Now that we've seen the shapes of the distributions of median incomes for each m
 ```{r eval=FALSE}
 college_recent_grads %>%
   group_by(major_category) %>%
-  summarise(___ = ___(median)) %>%
-  arrange(___)
+  summarise(highest_median_income = max(median)) %>%
+  arrange(desc(highest_median_income))
 ```
 
 7.  Which major category is the least popular in this sample? To answer this question we use a new function called `count`, which first groups the data and then counts the number of observations in each category (see below). Add to the pipeline appropriately to arrange the results so that the major with the lowest observations is on top.
 
 ```{r}
 college_recent_grads %>%
-  count(major_category)
+  count(major_category) %>%
+  arrange(n)
 ```
 
 🧶 ✅ ⬆️ Knit, *commit, and push your changes to GitHub with an appropriate commit message. Make sure to commit and push all changed files so that your Git pane is cleared up afterwards.*
@@ -266,6 +287,15 @@ college_recent_grads %>%
 ```
 
 8.  Which STEM majors have median salaries equal to or less than the median for all majors' median earnings? Your output should only show the major name and median, 25th percentile, and 75th percentile earning for that major as and should be sorted such that the major with the highest median earning is on top.
+```{r}
+
+overall_median <- median(college_recent_grads$median)
+
+college_recent_grads %>%
+  filter(major_category %in% c("Engineering", "Computer Science", "Physical Sciences", "Mathematics & Statistics") & median <= overall_median) %>%
+  select(major, median, p25th, p75th) %>%
+  arrange(desc(median))
+```
 
 🧶 ✅ ⬆️ Knit, *commit, and push your changes to GitHub with an appropriate commit message. Make sure to commit and push all changed files so that your Git pane is cleared up afterwards.*
 
@@ -273,6 +303,17 @@ college_recent_grads %>%
 
 9.  Create a scatterplot of median income vs. proportion of women in that major, coloured by whether the major is in a STEM field or not. Describe the association between these three variables.
 
+```{r}
+
+college_recent_grads$stem <- ifelse(college_recent_grads$major_category %in% c("Engineering", "Computer Science", "Physical Sciences", "Mathematics & Statistics"), "STEM", "Non-STEM")
+
+ggplot(college_recent_grads, aes(x = median, y = sharewomen, color = stem)) +
+  geom_point(alpha = 0.7) +
+  labs(title = "Median Income vs Proportion of Women in Majors (STEM vs Non-STEM)",
+       x = "Median Income ($)",
+       y = "Proportion of Women") +
+  scale_color_manual(values = c("STEM" = "blue", "Non-STEM" = "red"))
+```
 ## Further exploration
 
 10. Ask a question of interest to you, and answer it using summary statistic(s) and/or visualization(s).
