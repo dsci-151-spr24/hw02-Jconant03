@@ -1,5 +1,6 @@
 ---
 title: "HW 04 - What should I major in?"
+author: Jack Conant
 output: 
   tufte::tufte_html:
     css: ../hw.css
@@ -140,8 +141,11 @@ college_recent_grads %>%
 
 ## How do the distributions of median income compare across major categories?
 
-```{marginfigure}
-A percentile is a measure used in statistics indicating the value below which a given percentage of observations in a group of observations fall. For example, the 20th percentile is the value below which 20% of the observations may be found. (Source: [Wikipedia](https://en.wikipedia.org/wiki/Percentile)
+```{r}
+college_recent_grads %>%
+   select(major, total, sharewomen) %>%
+  arrange(desc(sharewomen)) %>%
+  top_n(3)
 ```
 
 There are three types of incomes reported in this data frame: `p25th`, `median`, and `p75th`.
